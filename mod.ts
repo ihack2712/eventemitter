@@ -22,7 +22,7 @@ export class EventEmitter <E extends EventsType = { }>
 	/**
 	 * This is where the events and listeners are stored.
 	 */
-	#_events_: Map<keyof E, Set<Listener>> = new Map();
+	private _events_: Map<keyof E, Set<Listener>> = new Map();
 	
 	/**
 	 * Listen for a typed event.
@@ -38,8 +38,8 @@ export class EventEmitter <E extends EventsType = { }>
 	 */
 	public on (event: EventName, listener: Callback): this
 	{
-		if (!this.#_events_.has(event)) this.#_events_.set(event, new Set());
-		this.#_events_.get(event)!.add(listener);
+		if (!this._events_.has(event)) this._events_.set(event, new Set());
+		this._events_.get(event)!.add(listener);
 		return this;
 	}
 	
@@ -94,14 +94,14 @@ export class EventEmitter <E extends EventsType = { }>
 		if (!event && listener)
 			throw new Error("Why is there a listener defined here?");
 		else if (!event && !listener)
-			this.#_events_.clear();
+			this._events_.clear();
 		else if (event && !listener)
-			this.#_events_.delete(event);
-		else if (event && listener && this.#_events_.has(event))
+			this._events_.delete(event);
+		else if (event && listener && this._events_.has(event))
 		{
-			const _ = this.#_events_.get(event)!;
+			const _ = this._events_.get(event)!;
 			_.delete(listener);
-			if (_.size === 0) this.#_events_.delete(event);
+			if (_.size === 0) this._events_.delete(event);
 		} else
 		{
 			throw new Error("Unknown action!");
@@ -124,8 +124,8 @@ export class EventEmitter <E extends EventsType = { }>
 	 */
 	public emitSync (event: EventName, ...args: Parameters<Callback>): this
 	{
-		if (!this.#_events_.has(event)) return this;
-		const _ = this.#_events_.get(event)!;
+		if (!this._events_.has(event)) return this;
+		const _ = this._events_.get(event)!;
 		for (let [, listener ] of _.entries())
 		{
 			const r = listener(...args);
@@ -136,7 +136,7 @@ export class EventEmitter <E extends EventsType = { }>
 				_.delete(listener);
 			}
 		}
-		if (_.size === 0) this.#_events_.delete(event);
+		if (_.size === 0) this._events_.delete(event);
 		return this;
 	}
 	
@@ -154,8 +154,8 @@ export class EventEmitter <E extends EventsType = { }>
 	 */
 	public async emit (event: EventName, ...args: Parameters<Callback>): Promise<this>
 	{
-		if (!this.#_events_.has(event)) return this;
-		const _ = this.#_events_.get(event)!;
+		if (!this._events_.has(event)) return this;
+		const _ = this._events_.get(event)!;
 		for (let [, listener ] of _.entries())
 		{
 			try
@@ -171,7 +171,7 @@ export class EventEmitter <E extends EventsType = { }>
 				console.error(error);
 			}
 		}
-		if (_.size === 0) this.#_events_.delete(event);
+		if (_.size === 0) this._events_.delete(event);
 		return this;
 	}
 	
