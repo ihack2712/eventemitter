@@ -195,6 +195,39 @@ export class EventEmitter <E extends EventsType = { }>
 		return this;
 	}
 	
+	/**
+	 * Wait for a typed event to be emitted and return the arguments.
+	 * @param event The typed event name to wait for.
+	 * @param timeout An optional amount of milliseconds to wait
+	 * before throwing.
+	 */
+	public pull <K extends keyof E> (event: K, timeout?: number): Promise<Parameters<E[K]>>;
+	/**
+	 * Wait for an event to be emitted and return the arguments.
+	 * @param event The event name to wait for.
+	 * @param timeout An optional amount of milliseconds to wait
+	 * before throwing.
+	 */
+	public pull (event: EventName, timeout?: number): Promise<Parameters<Callback>>
+	{
+		return new Promise(async (resolve, reject) => {
+			let timeoutId: number | null
+			
+			let listener = (...args: any[]) => {
+				if (timeoutId !== null) clearTimeout(timeoutId);
+				resolve(args);
+			};
+			
+			timeoutId = typeof timeout !== "number"
+				? null
+				: setTimeout(() => (this.off(event, listener as any), reject(
+					new Error("Timed out!")
+				)));
+			
+			this.once(event, listener as any);
+		});
+	}
+	
 }
 
 export default EventEmitter;
