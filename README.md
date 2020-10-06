@@ -2,6 +2,8 @@
 
 A typed-event emitter.
 
+See [examples](./examples).
+
 ```ts
 const events = new EventEmitter<{
 	event_1 (a: number, b: number, c: number): any
