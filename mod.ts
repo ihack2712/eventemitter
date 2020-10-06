@@ -5,10 +5,18 @@ type Callback = (...args: any[]) => any | Promise<any>;
 /** A listener type. */
 type Listener = Callback & { __once__?: true; };
 
+/** The name of an event. */
+type EventName = string | number;
+
+type EventsType =
+	& { [key: string]: Callback; }
+	& { [key: number]: Callback; }
+	;
+
 /**
  * The event emitter.
  */
-export class EventEmitter <E extends { [key: string]: Callback; } = { }>
+export class EventEmitter <E extends EventsType = { }>
 {
 	
 	/**
@@ -28,7 +36,7 @@ export class EventEmitter <E extends { [key: string]: Callback; } = { }>
 	 * @param event The event name to listen for.
 	 * @param listener The listener function.
 	 */
-	public on (event: string, listener: Callback): this
+	public on (event: EventName, listener: Callback): this
 	{
 		if (!this.#_events_.has(event)) this.#_events_.set(event, new Set());
 		this.#_events_.get(event)!.add(listener);
@@ -47,7 +55,7 @@ export class EventEmitter <E extends { [key: string]: Callback; } = { }>
 	 * @param event The event name to listen for.
 	 * @param listener The listener function.
 	 */
-	public once (event: string, listener: Callback): this
+	public once (event: EventName, listener: Callback): this
 	{
 		const l: Listener = listener;
 		l.__once__ = true;
@@ -81,7 +89,7 @@ export class EventEmitter <E extends { [key: string]: Callback; } = { }>
 	 * @param event The event name.
 	 * @param listener The event listener function.
 	 */
-	public off (event?: string, listener?: Callback): this
+	public off (event?: EventName, listener?: Callback): this
 	{
 		if (!event && listener)
 			throw new Error("Why is there a listener defined here?");
@@ -114,7 +122,7 @@ export class EventEmitter <E extends { [key: string]: Callback; } = { }>
 	 * @param event The event name to emit.
 	 * @param args The arguments to pass to the listeners.
 	 */
-	public emitSync (event: string, ...args: Parameters<Callback>): this
+	public emitSync (event: EventName, ...args: Parameters<Callback>): this
 	{
 		if (!this.#_events_.has(event)) return this;
 		const _ = this.#_events_.get(event)!;
@@ -144,7 +152,7 @@ export class EventEmitter <E extends { [key: string]: Callback; } = { }>
 	 * @param event The event name to emit.
 	 * @param args The arguments to pass to the listeners.
 	 */
-	public async emit (event: string, ...args: Parameters<Callback>): Promise<this>
+	public async emit (event: EventName, ...args: Parameters<Callback>): Promise<this>
 	{
 		if (!this.#_events_.has(event)) return this;
 		const _ = this.#_events_.get(event)!;
@@ -181,7 +189,7 @@ export class EventEmitter <E extends { [key: string]: Callback; } = { }>
 	 * @param event The event name.
 	 * @param args The arguments to pass to the listeners.
 	 */
-	public queue (event: string, ...args: Parameters<Callback>): this
+	public queue (event: EventName, ...args: Parameters<Callback>): this
 	{
 		(async () => await this.emit(event, ...args as any))().catch(console.error);
 		return this;
