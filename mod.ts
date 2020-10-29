@@ -91,7 +91,7 @@ export class EventEmitter <E extends EventsType = { }>
 	 */
 	public off (event?: EventName, listener?: Callback): this
 	{
-		if (!event && listener)
+		if (event === undefined || event === null && listener)
 			throw new Error("Why is there a listener defined here?");
 		else if (!event && !listener)
 			this._events_.clear();
