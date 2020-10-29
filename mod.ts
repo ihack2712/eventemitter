@@ -91,9 +91,9 @@ export class EventEmitter <E extends EventsType = { }>
 	 */
 	public off (event?: EventName, listener?: Callback): this
 	{
-		if (event === undefined || event === null && listener)
+		if ((event === undefined || event === null) && listener)
 			throw new Error("Why is there a listener defined here?");
-		else if (!event && !listener)
+		else if ((event === undefined || event === null) && !listener)
 			this._events_.clear();
 		else if (event && !listener)
 			this._events_.delete(event);
@@ -102,10 +102,7 @@ export class EventEmitter <E extends EventsType = { }>
 			const _ = this._events_.get(event)!;
 			_.delete(listener);
 			if (_.size === 0) this._events_.delete(event);
-		} else
-		{
-			throw new Error("Unknown action!");
-		}
+		} else;
 		return this;
 	}
 	
